@@ -1,6 +1,7 @@
 {
     "userspace_version": "1.1",
     "build_targets": [
-        ["splitkb/aurora/lily58/rev1", "lily58_bepo"]
+        ["splitkb/aurora/lily58/rev1", "lily58_bepo"],
+        ["splitkb/aurora/lily58/rev1", "laureyn"]
     ]
 }
