@@ -34,3 +34,9 @@ Follow the steps to upgrade QMK:
 *Work in progress*
 
 For a complete view on the progress refer to the Jira Project "DEV".
+
+## Code quality
+
+Check the keymap with QMK's linter before pushing:
+
+    qmk lint -kb splitkb/aurora/lily58/rev1 -km laureyn --strict

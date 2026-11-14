@@ -1,3 +1,6 @@
+// Copyright 2026 laureyn (@laureyn)
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include QMK_KEYBOARD_H
 #if __has_include("keymap.h")
 #    include "keymap.h"
