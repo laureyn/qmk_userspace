@@ -12,6 +12,7 @@ jobs:
     with:
       qmk_repo: qmk/qmk_firmware
       qmk_ref: 0.34.8
+    needs: quality
 
   publish:
     name: 'QMK Userspace Publish'

@@ -1,0 +1,37 @@
+name: Code quality
+
+on: [push, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: 'Lint and format check'
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: qmk_userspace
+
+      - uses: actions/checkout@v4
+        with:
+          repository: qmk/qmk_firmware
+          ref: 0.34.8
+          path: qmk_firmware
+
+      - name: Configure QMK
+        run: |
+          qmk config user.qmk_home=$GITHUB_WORKSPACE/qmk_firmware
+          qmk config user.overlay_dir=$GITHUB_WORKSPACE/qmk_userspace
+
+      - name: qmk lint
+        run: qmk lint -kb splitkb/aurora/lily58/rev1 -km laureyn --strict
+
+      - name: clang-format check
+        working-directory: qmk_userspace
+        run: |
+          clang-format --dry-run --Werror \
+            keyboards/splitkb/aurora/lily58/rev1/keymaps/laureyn/keymap.c \
+            keyboards/splitkb/aurora/lily58/rev1/keymaps/laureyn/keymap.h
