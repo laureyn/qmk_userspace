@@ -16,6 +16,20 @@ The built firmware is designed for the following hardware:
 ## Host requirement
 The firmware is built to work on devices with the keyboard layout set to Belgian French (AZERTY).
 
+## Upgrading QMK
+Follow the steps to upgrade QMK:
+
+- choose a version to upgrade to (a branch to always receive the newest changes but it might break often, or a tag)
+- Update the `qmk_ref: <tag>` to the version you selected in the previous step
+- commit the changes
+- go to your local `qmk-firmware` copy and run the following command:
+
+        git checkout <tag>
+
+- return to your `qmk_userspace` folder and compile
+- run all the tests
+- if everything went well, you can push your changes to GitHub and check if the workflow passes too
+
 ## Status
 *Work in progress*
 
