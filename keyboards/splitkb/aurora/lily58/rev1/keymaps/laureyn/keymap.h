@@ -4,6 +4,7 @@
 #pragma once
 #include QMK_KEYBOARD_H
 #include "bepo_table.h"
+#include "bepo_dead.h"
 
 enum layers {
     BASE,

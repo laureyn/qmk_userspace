@@ -21,6 +21,8 @@ enum custom_keycodes {
     BP_EQL,
     BP_DOT,
     BP_QUOT,
+    BP_ECIRC,
+    BP_EACUTE,
 };
 
 typedef struct {
