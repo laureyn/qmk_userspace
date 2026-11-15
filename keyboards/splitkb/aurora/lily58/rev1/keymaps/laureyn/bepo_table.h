@@ -23,6 +23,13 @@ enum custom_keycodes {
     BP_QUOT,
     BP_ECIRC,
     BP_EACUTE,
+    BP_EGRAVE,
+    BP_AGRAVE,
+    BP_UGRAVE,
+    BP_PERC,
+    BP_CIRC,
+    BP_TILD,
+    BP_GRAVE,
 };
 
 typedef struct {
