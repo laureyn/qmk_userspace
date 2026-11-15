@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "bepo_table.h"
+
 enum layers {
     BASE,
     SYM,

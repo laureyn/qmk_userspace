@@ -34,7 +34,10 @@ jobs:
         run: |
           clang-format --dry-run --Werror \
             keyboards/splitkb/aurora/lily58/rev1/keymaps/laureyn/keymap.c \
-            keyboards/splitkb/aurora/lily58/rev1/keymaps/laureyn/keymap.h
+            keyboards/splitkb/aurora/lily58/rev1/keymaps/laureyn/keymap.h \
+            keyboards/splitkb/aurora/lily58/rev1/keymaps/laureyn/bepo_table.c \
+            keyboards/splitkb/aurora/lily58/rev1/keymaps/laureyn/bepo_table.h
+
   build:
     name: 'QMK Userspace Build'
     uses: qmk/.github/.github/workflows/qmk_userspace_build.yml@main
