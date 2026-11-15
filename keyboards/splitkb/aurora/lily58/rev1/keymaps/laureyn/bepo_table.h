@@ -30,6 +30,9 @@ enum custom_keycodes {
     BP_CIRC,
     BP_TILD,
     BP_GRAVE,
+    BP_OE,
+    BP_CCED,
+    BP_ELLIPSIS,
 };
 
 typedef struct {
