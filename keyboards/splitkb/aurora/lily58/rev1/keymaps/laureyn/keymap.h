@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 #pragma once
-
+#include QMK_KEYBOARD_H
 #include "bepo_table.h"
 
 enum layers {
