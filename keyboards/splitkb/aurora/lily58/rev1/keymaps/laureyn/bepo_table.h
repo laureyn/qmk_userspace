@@ -7,7 +7,20 @@
 #include <stdint.h>
 
 enum custom_keycodes {
-    BP_COMM = SAFE_RANGE
+    BP_COMM = SAFE_RANGE,
+    BP_DQUO,
+    BP_PIPE,
+    BP_AT,
+    BP_AMPR,
+    BP_EURO,
+    BP_DLR,
+    BP_PLUS,
+    BP_MINS,
+    BP_SLSH,
+    BP_ASTR,
+    BP_EQL,
+    BP_DOT,
+    BP_QUOT,
 };
 
 typedef struct {
