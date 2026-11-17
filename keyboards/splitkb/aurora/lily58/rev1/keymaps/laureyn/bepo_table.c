@@ -20,7 +20,6 @@ const bepo_entry_t bepo_table[] = {
     {BP_EQL,  BE_EQL,  BE_DEG},  // =  °
     {BP_DOT,  BE_DOT,  BE_COLN}, // .  :
     {BP_QUOT, BE_QUOT, BE_QUES}, // '  ?
-    {BP_OE,   ALGR(BE_O), ALGR(S(BE_O))}, // œ  Œ
 };
 
 const uint8_t bepo_table_count = sizeof(bepo_table) / sizeof(bepo_table[0]);
