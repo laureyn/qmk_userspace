@@ -8,9 +8,10 @@
 #include "stats.h"
 #include "sync.h"
 
-// The screens are 128 x 64 pixels. Everything is placed by pixel, so it can be centred.
-#define SCREEN_W 128
-#define SCREEN_H 64
+// The panel is 128 x 64 and is rotated 270 degrees, so the screen is 64 wide and 128 tall.
+// Everything is placed by pixel, so it can be centred.
+#define SCREEN_W 64
+#define SCREEN_H 128
 
 static bool wanted = true;
 
@@ -174,7 +175,8 @@ static void draw_logo(const char *logo, uint8_t x0, uint8_t y0) {
 #define TILE_SKEW 3  // the top row starts this many pixels right of the bottom row
 #define TILE_PITCH 6 // pixels from one tile to the next
 #define STACK_H (3 * TILE_PITCH + TILE_H)
-#define STACK_X 0
+#define STACK_W (TILE_W + TILE_SKEW)
+#define STACK_X ((SCREEN_W - STACK_W) / 2) // horizontally centred
 #define STACK_Y ((SCREEN_H - STACK_H) / 2) // vertically centred
 
 static void draw_tile(uint8_t x0, uint8_t y0, bool filled) {
@@ -196,56 +198,55 @@ static void draw_layer_stack(uint8_t current) {
     }
 }
 
-// Left screen:
-//   top centre      big L
-//   left, centred   layer stack, with the layer name and SHIFT under it
-//   above the logo  LOCK and CAPS
-//   bottom centre   OS logo
+// Left screen, top to bottom:
+//   big L, CAPS, SHIFT, layer stack (centred), layer name, LOCK, OS logo (bottom).
 #define LOGO_X ((SCREEN_W - 24) / 2)
 #define LOGO_Y (SCREEN_H - 24)
+#define NAME_Y (STACK_Y + STACK_H + 4)
 
 static void draw_left(status_t status) {
     draw_text_centred("L", 0, 3);
 
-    draw_logo(status.os == OS_LINUX ? tux_logo : windows_logo, LOGO_X, LOGO_Y);
-
-    if (status.layer_locked) {
-        draw_text_centred("LOCK", LOGO_Y - 18, 1);
-    }
     if (status.caps_word) {
-        draw_text_centred("CAPS", LOGO_Y - 10, 1);
+        draw_text_centred("CAPS", 21, 2);
+    }
+    if (status.shift_locked) {
+        draw_text_centred("SHIFT", 36, 2);
     }
 
     draw_layer_stack(status.layer);
-    draw_text(layer_name(status.layer), STACK_X, STACK_Y + STACK_H + 4, 1);
-    if (status.shift_locked) {
-        draw_text("SHIFT", STACK_X, STACK_Y + STACK_H + 13, 1);
+    draw_text_centred(layer_name(status.layer), NAME_Y, 1);
+
+    if (status.layer_locked) {
+        draw_text_centred("LOCK", LOGO_Y - 16, 2);
     }
+
+    draw_logo(status.os == OS_LINUX ? tux_logo : windows_logo, LOGO_X, LOGO_Y);
 }
 
-// One statistic on the right screen: a small label and a large value, centred as a pair.
-#define METRIC_GAP 6
+// One statistic on the right screen: the label, then the large value under it, both centred.
+#define METRIC_H 22 // label (7 pixels), gap, value (14 pixels)
 
 static void draw_metric(const char *label, const char *value, uint8_t y) {
-    uint8_t label_w = text_width(label, 1);
-    uint8_t total   = label_w + METRIC_GAP + text_width(value, 2);
-    uint8_t x       = (SCREEN_W - total) / 2;
-    draw_text(label, x, y + 7, 1); // label sits on the same baseline as the value
-    draw_text(value, x + label_w + METRIC_GAP, y, 2);
+    draw_text_centred(label, y, 1);
+    draw_text_centred(value, y + 8, 2);
 }
 
-// Right screen: a big R at the top, then the statistics at the bottom of the screen.
+// Right screen: a big R at the top, the statistics stacked at the bottom of the screen.
 static void draw_right(const stats_t *stats) {
     char value[8];
 
     draw_text_centred("R", 0, 3);
 
+    // The three blocks end at the bottom of the screen, with 8 pixels between them.
+    uint8_t y = SCREEN_H - (3 * METRIC_H + 2 * 8);
+
     format_count((uint32_t)get_current_wpm() * 5, value); // WPM x 5 = characters per minute
-    draw_metric("CPM", value, 22);
+    draw_metric("CPM", value, y);
     format_count(stats->chars, value);
-    draw_metric("CHARS", value, 36);
+    draw_metric("CHARS", value, y + METRIC_H + 8);
     format_count(stats->backspaces, value);
-    draw_metric("BKSP", value, 50);
+    draw_metric("BKSP", value, y + 2 * (METRIC_H + 8));
 }
 
 // The board calls this first; returning false skips its logo and status drawing.
