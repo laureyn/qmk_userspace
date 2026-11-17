@@ -70,16 +70,17 @@ static void format_count(uint32_t n, char *out) {
     *p = '\0';
 }
 
+// Padded to 5 characters, the width of MEDIA.
 static const char *layer_name(uint8_t layer) {
     switch (layer) {
         case SYM:
-            return "SYM";
+            return "SYM  ";
         case NUM:
-            return "NUM";
+            return "NUM  ";
         case MEDIA:
             return "MEDIA";
         default:
-            return "BASE";
+            return "BASE ";
     }
 }
 
@@ -90,12 +91,20 @@ static const char *layer_name(uint8_t layer) {
 bool oled_task_user(void) {
     if (is_keyboard_left()) {
         status_t status = status_shown();
-        oled_write_ln_P(PSTR("LEFT"), false);
-        oled_write_ln(layer_name(status.layer), false);
-        oled_write_ln_P(status.layer_locked ? PSTR("LOCK") : PSTR("    "), status.layer_locked);
-        oled_write_ln_P(status.caps_word ? PSTR("CAPS") : PSTR("    "), false);
-        oled_write_ln_P(status.shift_locked ? PSTR("SHIFT") : PSTR("     "), status.shift_locked);
-        oled_write_ln_P(status.os == OS_LINUX ? PSTR("LINUX") : PSTR("WIN"), false);
+        // Each line goes to its own row and is padded to 5 characters, so a longer or
+        // shorter line (MEDIA, LINUX) cannot move the lines below it.
+        oled_set_cursor(0, 0);
+        oled_write_P(PSTR("LEFT "), false);
+        oled_set_cursor(0, 1);
+        oled_write(layer_name(status.layer), false);
+        oled_set_cursor(0, 2);
+        oled_write_P(status.layer_locked ? PSTR("LOCK ") : PSTR("     "), status.layer_locked);
+        oled_set_cursor(0, 3);
+        oled_write_P(status.caps_word ? PSTR("CAPS ") : PSTR("     "), false);
+        oled_set_cursor(0, 4);
+        oled_write_P(status.shift_locked ? PSTR("SHIFT") : PSTR("     "), status.shift_locked);
+        oled_set_cursor(0, 5);
+        oled_write_P(status.os == OS_LINUX ? PSTR("LINUX") : PSTR("WIN  "), false);
     } else {
         const stats_t *stats = stats_shown();
         char           text[8];

@@ -36,11 +36,15 @@ bool bepo_process_record(uint16_t keycode, keyrecord_t *record) {
         }
 
         if (record->event.pressed) {
+            // Shift from the keyboard (real) or from Caps Word (weak) picks the Shift character.
+            bool shifted = (get_mods() | get_weak_mods()) & MOD_MASK_SHIFT;
+
             // Take Shift out of the report, so the table decides the character.
             removed_mods[i] = get_mods() & MOD_MASK_SHIFT;
             del_mods(MOD_MASK_SHIFT);
+            del_weak_mods(MOD_MASK_SHIFT);
 
-            sent_keycode[i] = removed_mods[i] ? bepo_table[i].shift : bepo_table[i].tap;
+            sent_keycode[i] = shifted ? bepo_table[i].shift : bepo_table[i].tap;
             register_code16(sent_keycode[i]);
         } else {
             // Release what was pressed, then give back the Shift we took.

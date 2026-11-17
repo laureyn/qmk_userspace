@@ -45,10 +45,13 @@ static bool dead_only(uint16_t dead, uint16_t letter, keyrecord_t *record) {
     return false;
 }
 
-// Lone dead key (^ ~ `): the dead key, then Space, gives the accent alone.
+// Lone dead key (^ ~ `): only the dead key is sent, so the next letter can combine with it.
 static bool lone_dead(uint16_t dead, keyrecord_t *record) {
     if (record->event.pressed) {
-        send_dead_key_letter(dead, KC_SPC, false);
+        uint8_t saved_mods = get_mods();
+        del_mods(MOD_MASK_SHIFT); // the dead key must not get Shift
+        tap_code16(dead);
+        set_mods(saved_mods);
     }
     return false;
 }

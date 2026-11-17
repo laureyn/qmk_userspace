@@ -7,7 +7,9 @@
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     layer_timeout_key(record);
-    layer_track_keys(keycode, record);
+    if (!layer_track_keys(keycode, record)) {
+        return false;
+    }
     if (!stats_process_record(keycode, record)) {
         return false;
     }
@@ -72,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, BP_TILD, BP_EGRAVE, BP_ECIRC, BP_UGRAVE, BP_CIRC, BE_EXLM, BE_BSLS, BE_SCLN, BE_COLN, BE_HASH, BP_GRAVE,
         _______, BE_LABK, BE_LBRC, BE_LCBR, BE_LPRN, BE_UNDS, BP_CCED, BE_RPRN, BE_RCBR, BE_RBRC, BE_RABK, XXXXXXX,
         _______, C(BE_Z), C(BE_X), C(BE_C), C(BE_V), OS_REDO, _______, RIGHT_PUSH, BE_QUES, BP_OE, BP_ELLIPSIS, XXXXXXX, XXXXXXX, _______,
-        _______, _______, TT(SYM), _______, _______, TT(NUM), KC_DEL, _______),
+        _______, _______, TT(SYM), _______, _______, TT(NUM), _______, _______),
 
     [NUM] = LAYOUT(
         _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, BP_SLSH, KC_PSCR, KC_INS, KC_DEL, XXXXXXX, XXXXXXX, XXXXXXX,
