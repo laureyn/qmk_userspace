@@ -11,6 +11,7 @@ SRC += caps_word.c
 SRC += encoders.c
 SRC += rgb.c
 SRC += oled.c
+SRC += sync.c
 OS_DETECTION_ENABLE = yes
 TAP_DANCE_ENABLE = yes
 CAPS_WORD_ENABLE = yes

@@ -9,6 +9,9 @@
 // Both halves share the activity time, so the screens and LEDs go off together (DEV-107, DEV-109).
 #define SPLIT_ACTIVITY_ENABLE
 
+// Custom sync: Caps Word state from the USB half to the other half (DEV-102).
+#define SPLIT_TRANSACTION_IDS_USER USER_SYNC_CAPS
+
 // RGB: on at first boot with one effect; brightness stays at the board's cap (DEV-37).
 #define RGB_MATRIX_DEFAULT_ON true
 #define ENABLE_RGB_MATRIX_CYCLE_LEFT_RIGHT

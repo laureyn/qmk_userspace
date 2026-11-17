@@ -41,6 +41,7 @@ void housekeeping_task_user(void) {
     caps_lock_task();
     layer_timeout_task();
     settings_reset_task();
+    sync_task();
 }
 
 // BASE (bépo 1.1 start, keymap-v2). Each key shows its tap character.

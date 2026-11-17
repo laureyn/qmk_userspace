@@ -13,6 +13,7 @@
 #include "settings_keys.h"
 #include "encoders.h"
 #include "rgb.h"
+#include "sync.h"
 
 enum layers {
     BASE,
