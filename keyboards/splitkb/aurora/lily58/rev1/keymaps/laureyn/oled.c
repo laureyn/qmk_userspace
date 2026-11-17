@@ -8,9 +8,10 @@
 #include "stats.h"
 #include "sync.h"
 
-// The panel is 128 x 64 and is rotated 270 degrees, so the screen is 64 wide and 128 tall.
-// Everything is placed by pixel, so it can be centred.
-#define SCREEN_W 64
+// QMK's default panel setup (128 x 32), rotated 270 degrees: the screen is 32 pixels wide and
+// 128 tall. This is the same setup as the board's own drawing on the main branch.
+// Everything is placed by pixel and centred on the screen width.
+#define SCREEN_W 32
 #define SCREEN_H 128
 
 static bool wanted = true;
@@ -66,7 +67,7 @@ static char *put_decimal(char *p, uint32_t n, uint32_t unit) {
     return p;
 }
 
-// Human-readable: 999, 1K, 1.5K, 12K, 999K, 1.2M, 12M.
+// Human-readable, at most 4 characters: 999, 1K, 1.5K, 12K, 999K, 1.2M, 12M.
 static void format_count(uint32_t n, char *out) {
     char *p = out;
     if (n < 1000) {
@@ -224,12 +225,13 @@ static void draw_left(status_t status) {
     draw_logo(status.os == OS_LINUX ? tux_logo : windows_logo, LOGO_X, LOGO_Y);
 }
 
-// One statistic on the right screen: the label, then the large value under it, both centred.
-#define METRIC_H 22 // label (7 pixels), gap, value (14 pixels)
+// One statistic on the right screen: the label, then the value under it, both centred.
+#define METRIC_H 15 // label (7 pixels), gap, value (7 pixels)
+#define METRIC_GAP 7
 
 static void draw_metric(const char *label, const char *value, uint8_t y) {
     draw_text_centred(label, y, 1);
-    draw_text_centred(value, y + 8, 2);
+    draw_text_centred(value, y + 8, 1);
 }
 
 // Right screen: a big R at the top, the statistics stacked at the bottom of the screen.
@@ -238,48 +240,20 @@ static void draw_right(const stats_t *stats) {
 
     draw_text_centred("R", 0, 3);
 
-    // The three blocks end at the bottom of the screen, with 8 pixels between them.
-    uint8_t y = SCREEN_H - (3 * METRIC_H + 2 * 8);
+    uint8_t y = SCREEN_H - (3 * METRIC_H + 2 * METRIC_GAP);
 
     format_count((uint32_t)get_current_wpm() * 5, value); // WPM x 5 = characters per minute
     draw_metric("CPM", value, y);
     format_count(stats->chars, value);
-    draw_metric("CHARS", value, y + METRIC_H + 8);
+    draw_metric("CHARS", value, y + METRIC_H + METRIC_GAP);
     format_count(stats->backspaces, value);
-    draw_metric("BKSP", value, y + 2 * (METRIC_H + 8));
+    draw_metric("BKSP", value, y + 2 * (METRIC_H + METRIC_GAP));
 }
-
-// Temporary: a border on the logical screen edges, and a solid block in the top-left and
-// bottom-right corners, to see which part of the screen is visible.
-static void draw_diagnostic(void) {
-    for (uint8_t x = 0; x < SCREEN_W; x++) {
-        oled_write_pixel(x, 0, true);
-        oled_write_pixel(x, SCREEN_H - 1, true);
-    }
-    for (uint8_t y = 0; y < SCREEN_H; y++) {
-        oled_write_pixel(0, y, true);
-        oled_write_pixel(SCREEN_W - 1, y, true);
-    }
-    for (uint8_t y = 0; y < 8; y++) {
-        for (uint8_t x = 0; x < 8; x++) {
-            oled_write_pixel(x, y, true);
-            oled_write_pixel(SCREEN_W - 1 - x, SCREEN_H - 1 - y, true);
-        }
-    }
-}
-
-#ifdef OLED_DIAGNOSTIC
-#    define OLED_DIAGNOSTIC_ON 1
-#else
-#    define OLED_DIAGNOSTIC_ON 0
-#endif
 
 // The board calls this first; returning false skips its logo and status drawing.
 bool oled_task_user(void) {
     oled_clear();
-    if (OLED_DIAGNOSTIC_ON) {
-        draw_diagnostic();
-    } else if (is_keyboard_left()) {
+    if (is_keyboard_left()) {
         draw_left(status_shown());
     } else {
         draw_right(stats_shown());
