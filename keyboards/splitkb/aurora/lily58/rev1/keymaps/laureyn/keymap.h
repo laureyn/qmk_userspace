@@ -11,6 +11,8 @@
 #include "host_locks.h"
 #include "layers.h"
 #include "settings_keys.h"
+#include "encoders.h"
+#include "rgb.h"
 
 enum layers {
     BASE,

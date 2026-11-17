@@ -38,6 +38,10 @@ enum custom_keycodes {
     OSKEY_WINDOWS,
     OSKEY_LINUX,
     SETTINGS_RESET,
+    SCRL_UP,
+    SCRL_DN,
+    RGB_GLOW_TOG,
+    RGB_KEYS_TOG,
 };
 
 typedef struct {
