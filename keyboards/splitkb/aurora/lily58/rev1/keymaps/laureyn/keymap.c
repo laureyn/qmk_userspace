@@ -62,6 +62,7 @@ void housekeeping_task_user(void) {
 //
 // Layer keys: 58 positions per layer, same order as BASE.
 // Positions 42 and 43 are the left and right encoder push keys.
+// clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [BASE] = LAYOUT(KC_ESC, BP_DQUO, BP_PIPE, BP_AT, BP_AMPR, BP_EURO, BP_DLR, BP_PLUS, BP_MINS, BP_SLSH, BP_ASTR, BP_PERC, KC_TAB, BE_B, BP_EACUTE, BE_P, BE_O, BE_Z, BE_W, BE_V, BE_D, BE_L, BE_J, BP_EQL, TD(TD_SHIFT), BE_A, BE_U, BE_I, BE_E, BP_COMM, BE_C, BE_T, BE_S, BE_R, BE_N, BE_M, KC_LCTL, BP_AGRAVE, BE_Y, BE_X, BP_DOT, BE_K, KC_MUTE, RIGHT_PUSH, BP_QUOT, BE_Q, BE_G, BE_H, BE_F, KC_RCTL, KC_LGUI, KC_LALT, TT(SYM), KC_SPC, KC_ENT, TT(NUM), KC_BSPC, TD(TD_SHIFT)),
 
@@ -86,6 +87,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, RM_HUED, RM_SATD, RM_VALD, RM_SPDD, RM_PREV, _______, RIGHT_PUSH, XXXXXXX, KC_SLEP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         XXXXXXX, XXXXXXX, TT(SYM), XXXXXXX, XXXXXXX, TT(NUM), XXXXXXX, XXXXXXX),
 };
+
+// clang-format on
 
 // Encoders per layer: ENCODER_CCW_CW(counter-clockwise, clockwise).
 // Left = volume (brightness on MEDIA). Right = scroll (RGB value on MEDIA).

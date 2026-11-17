@@ -52,7 +52,7 @@ typedef struct {
     uint16_t shift;
 } bepo_entry_t;
 
-extern const bepo_entry_t	bepo_table[];
-extern const uint8_t		bepo_table_count;
+extern const bepo_entry_t bepo_table[];
+extern const uint8_t      bepo_table_count;
 
 bool bepo_process_record(uint16_t keycode, keyrecord_t *record);

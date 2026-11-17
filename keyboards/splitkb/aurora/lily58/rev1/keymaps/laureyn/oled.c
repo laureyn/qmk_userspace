@@ -36,7 +36,7 @@ bool oled_process_record(uint16_t keycode, keyrecord_t *record) {
 
 // Writes n as digits at p and returns the position after them.
 static char *put_uint(char *p, uint32_t n) {
-    char digits[10];
+    char    digits[10];
     uint8_t count = 0;
     do {
         digits[count++] = '0' + n % 10;
@@ -54,15 +54,15 @@ static void format_count(uint32_t n, char *out) {
     if (n < 10000) {
         p = put_uint(p, n);
     } else if (n < 100000) {
-        p = put_uint(p, n / 1000);
+        p    = put_uint(p, n / 1000);
         *p++ = '.';
-        p = put_uint(p, (n % 1000) / 100);
+        p    = put_uint(p, (n % 1000) / 100);
         *p++ = 'k';
     } else if (n < 1000000) {
-        p = put_uint(p, n / 1000);
+        p    = put_uint(p, n / 1000);
         *p++ = 'k';
     } else {
-        p = put_uint(p, 999);
+        p    = put_uint(p, 999);
         *p++ = 'k';
         *p++ = '+';
     }

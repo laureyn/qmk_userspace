@@ -7,8 +7,8 @@
 // A locked layer ends after this time with no key pressed (D-40, FR-B0e).
 #define LOCKED_LAYER_TIMEOUT 60000 // ms
 
-static uint8_t  keys_held      = 0;
-static uint32_t last_key_time  = 0;
+static uint8_t  keys_held     = 0;
+static uint32_t last_key_time = 0;
 
 void layer_timeout_key(keyrecord_t *record) {
     if (record->event.pressed) {

@@ -31,7 +31,7 @@ void sync_task(void) {
     if (!is_keyboard_master() || timer_elapsed32(sync_timer) < SYNC_INTERVAL_MS) {
         return;
     }
-    sync_timer = timer_read32();
+    sync_timer        = timer_read32();
     user_sync_t state = {
         .caps_word    = is_caps_word_on(),
         .oled_enabled = oled_wanted(),
