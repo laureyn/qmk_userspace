@@ -31,3 +31,6 @@
 // The panels are 128 x 64. Without this QMK assumes 128 x 32, and the rotated screen is then
 // only 32 pixels wide, so the drawing is cut off.
 #define OLED_DISPLAY_128X64
+
+// Temporary: draw the screen-edge test pattern instead of the layout.
+#define OLED_DIAGNOSTIC

@@ -249,13 +249,38 @@ static void draw_right(const stats_t *stats) {
     draw_metric("BKSP", value, y + 2 * (METRIC_H + 8));
 }
 
+#ifdef OLED_DIAGNOSTIC
+// Temporary: a border on the logical screen edges, and a solid block in the top-left and
+// bottom-right corners, to see which part of the screen is visible.
+static void draw_diagnostic(void) {
+    for (uint8_t x = 0; x < SCREEN_W; x++) {
+        oled_write_pixel(x, 0, true);
+        oled_write_pixel(x, SCREEN_H - 1, true);
+    }
+    for (uint8_t y = 0; y < SCREEN_H; y++) {
+        oled_write_pixel(0, y, true);
+        oled_write_pixel(SCREEN_W - 1, y, true);
+    }
+    for (uint8_t y = 0; y < 8; y++) {
+        for (uint8_t x = 0; x < 8; x++) {
+            oled_write_pixel(x, y, true);
+            oled_write_pixel(SCREEN_W - 1 - x, SCREEN_H - 1 - y, true);
+        }
+    }
+}
+#endif
+
 // The board calls this first; returning false skips its logo and status drawing.
 bool oled_task_user(void) {
     oled_clear();
+#ifdef OLED_DIAGNOSTIC
+    draw_diagnostic();
+#else
     if (is_keyboard_left()) {
         draw_left(status_shown());
     } else {
         draw_right(stats_shown());
     }
+#endif
     return false;
 }
