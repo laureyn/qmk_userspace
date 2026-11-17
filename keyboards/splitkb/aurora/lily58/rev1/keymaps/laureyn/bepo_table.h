@@ -34,6 +34,10 @@ enum custom_keycodes {
     BP_CCED,
     BP_ELLIPSIS,
     OS_REDO,
+    OSKEY_AUTO,
+    OSKEY_WINDOWS,
+    OSKEY_LINUX,
+    SETTINGS_RESET,
 };
 
 typedef struct {

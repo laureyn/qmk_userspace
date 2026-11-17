@@ -10,6 +10,7 @@
 #include "shift_key.h"
 #include "host_locks.h"
 #include "layers.h"
+#include "settings_keys.h"
 
 enum layers {
     BASE,
