@@ -8,6 +8,10 @@
 #include "stats.h"
 #include "sync.h"
 
+// The screens are 128 x 64 pixels. Everything is placed by pixel, so it can be centred.
+#define SCREEN_W 128
+#define SCREEN_H 64
+
 static bool wanted = true;
 
 bool oled_wanted(void) {
@@ -50,23 +54,34 @@ static char *put_uint(char *p, uint32_t n) {
     return p;
 }
 
-// Fits 5 characters: 1234, 12.3k, 123k, 999k+.
+// Writes n / unit with one decimal, without a trailing ".0": 1.5, 9.9, 12.
+static char *put_decimal(char *p, uint32_t n, uint32_t unit) {
+    p             = put_uint(p, n / unit);
+    uint8_t tenth = (n % unit) / (unit / 10);
+    if (tenth) {
+        *p++ = '.';
+        *p++ = '0' + tenth;
+    }
+    return p;
+}
+
+// Human-readable: 999, 1K, 1.5K, 12K, 999K, 1.2M, 12M.
 static void format_count(uint32_t n, char *out) {
     char *p = out;
-    if (n < 10000) {
+    if (n < 1000) {
         p = put_uint(p, n);
-    } else if (n < 100000) {
-        p    = put_uint(p, n / 1000);
-        *p++ = '.';
-        p    = put_uint(p, (n % 1000) / 100);
-        *p++ = 'k';
+    } else if (n < 10000) {
+        p    = put_decimal(p, n, 1000);
+        *p++ = 'K';
     } else if (n < 1000000) {
         p    = put_uint(p, n / 1000);
-        *p++ = 'k';
+        *p++ = 'K';
+    } else if (n < 10000000) {
+        p    = put_decimal(p, n, 1000000);
+        *p++ = 'M';
     } else {
-        p    = put_uint(p, 999);
-        *p++ = 'k';
-        *p++ = '+';
+        p    = put_uint(p, n / 1000000);
+        *p++ = 'M';
     }
     *p = '\0';
 }
@@ -84,33 +99,72 @@ static const char *layer_name(uint8_t layer) {
     }
 }
 
-// Big letters: 5 x 7 pixels, each pixel drawn 3 x 3, so a letter is 15 x 21 pixels (3 text rows).
-#define BIG_SCALE 3
+// 5 x 7 font for the letters and digits on the screens. Each row is 5 pixels, leftmost in bit 4.
+typedef struct {
+    char    c;
+    uint8_t rows[7];
+} glyph_t;
 
-static const uint8_t big_L[7] = {0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x1F};
-static const uint8_t big_R[7] = {0x1E, 0x11, 0x11, 0x1E, 0x14, 0x12, 0x11};
+static const glyph_t glyphs[] = {
+    {'.', {0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x0C}}, {'0', {0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E}}, {'1', {0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E}}, {'2', {0x0E, 0x11, 0x01, 0x02, 0x04, 0x08, 0x1F}}, {'3', {0x1E, 0x01, 0x01, 0x0E, 0x01, 0x01, 0x1E}}, {'4', {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02}}, {'5', {0x1F, 0x10, 0x1E, 0x01, 0x01, 0x11, 0x0E}}, {'6', {0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E}}, {'7', {0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08}}, {'8', {0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E}}, {'9', {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C}}, {'A', {0x0E, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11}}, {'B', {0x1E, 0x11, 0x11, 0x1E, 0x11, 0x11, 0x1E}}, {'C', {0x0E, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0E}}, {'D', {0x1C, 0x12, 0x11, 0x11, 0x11, 0x12, 0x1C}},
+    {'E', {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x1F}}, {'F', {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x10}}, {'H', {0x11, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11}}, {'I', {0x0E, 0x04, 0x04, 0x04, 0x04, 0x04, 0x0E}}, {'K', {0x11, 0x12, 0x14, 0x18, 0x14, 0x12, 0x11}}, {'L', {0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x1F}}, {'M', {0x11, 0x1B, 0x15, 0x15, 0x11, 0x11, 0x11}}, {'N', {0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11}}, {'O', {0x0E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}}, {'P', {0x1E, 0x11, 0x11, 0x1E, 0x10, 0x10, 0x10}}, {'R', {0x1E, 0x11, 0x11, 0x1E, 0x14, 0x12, 0x11}}, {'S', {0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E}}, {'T', {0x1F, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04}}, {'U', {0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}}, {'Y', {0x11, 0x11, 0x0A, 0x04, 0x04, 0x04, 0x04}},
+};
 
-// Bit 4 is the left pixel of a row.
-static void draw_big(const uint8_t *letter, uint8_t x0, uint8_t y0) {
-    for (uint8_t row = 0; row < 7; row++) {
-        for (uint8_t col = 0; col < 5; col++) {
-            if (!(letter[row] & (0x10 >> col))) {
-                continue;
-            }
-            for (uint8_t dy = 0; dy < BIG_SCALE; dy++) {
-                for (uint8_t dx = 0; dx < BIG_SCALE; dx++) {
-                    oled_write_pixel(x0 + col * BIG_SCALE + dx, y0 + row * BIG_SCALE + dy, true);
+static const uint8_t *glyph_rows(char c) {
+    for (uint8_t i = 0; i < sizeof(glyphs) / sizeof(glyphs[0]); i++) {
+        if (glyphs[i].c == c) {
+            return glyphs[i].rows;
+        }
+    }
+    return NULL; // unknown characters are blank
+}
+
+// Width in pixels of text at a scale: 6 pixels per letter, the last gap left out.
+static uint8_t text_width(const char *s, uint8_t scale) {
+    uint8_t n = 0;
+    while (s[n]) {
+        n++;
+    }
+    return n ? n * 6 * scale - scale : 0;
+}
+
+static void draw_text(const char *s, uint8_t x, uint8_t y, uint8_t scale) {
+    for (; *s; s++) {
+        const uint8_t *rows = glyph_rows(*s);
+        if (rows) {
+            for (uint8_t row = 0; row < 7; row++) {
+                for (uint8_t col = 0; col < 5; col++) {
+                    if (!(rows[row] & (0x10 >> col))) {
+                        continue;
+                    }
+                    for (uint8_t dy = 0; dy < scale; dy++) {
+                        for (uint8_t dx = 0; dx < scale; dx++) {
+                            oled_write_pixel(x + (col * scale) + dx, y + (row * scale) + dy, true);
+                        }
+                    }
                 }
             }
         }
+        x += 6 * scale;
     }
 }
 
-// One 24 x 24 logo: three text rows, starting at text column col.
-static void draw_logo(const char *logo, uint8_t col, uint8_t line) {
+// Text centred horizontally on the screen.
+static void draw_text_centred(const char *s, uint8_t y, uint8_t scale) {
+    draw_text(s, (SCREEN_W - text_width(s, scale)) / 2, y, scale);
+}
+
+// A 24 x 24 bitmap in the format of oled_art.h, drawn at pixel x0, y0.
+static void draw_logo(const char *logo, uint8_t x0, uint8_t y0) {
     for (uint8_t page = 0; page < 3; page++) {
-        oled_set_cursor(col, line + page);
-        oled_write_raw_P(logo + page * 24, 24);
+        for (uint8_t col = 0; col < 24; col++) {
+            uint8_t byte = pgm_read_byte(&logo[page * 24 + col]);
+            for (uint8_t bit = 0; bit < 8; bit++) {
+                if (byte & (1 << bit)) {
+                    oled_write_pixel(x0 + col, y0 + (page * 8) + bit, true);
+                }
+            }
+        }
     }
 }
 
@@ -119,7 +173,9 @@ static void draw_logo(const char *logo, uint8_t col, uint8_t line) {
 #define TILE_H 5
 #define TILE_SKEW 3  // the top row starts this many pixels right of the bottom row
 #define TILE_PITCH 6 // pixels from one tile to the next
-#define STACK_Y 24
+#define STACK_H (3 * TILE_PITCH + TILE_H)
+#define STACK_X 0
+#define STACK_Y ((SCREEN_H - STACK_H) / 2) // vertically centred
 
 static void draw_tile(uint8_t x0, uint8_t y0, bool filled) {
     for (uint8_t row = 0; row < TILE_H; row++) {
@@ -136,57 +192,60 @@ static void draw_tile(uint8_t x0, uint8_t y0, bool filled) {
 static void draw_layer_stack(uint8_t current) {
     // BASE sits at the bottom, MEDIA at the top.
     for (uint8_t layer = BASE; layer <= MEDIA; layer++) {
-        draw_tile(0, STACK_Y + (MEDIA - layer) * TILE_PITCH, layer == current);
+        draw_tile(STACK_X, STACK_Y + (MEDIA - layer) * TILE_PITCH, layer == current);
     }
 }
 
-// Left screen: a big L, the OS logo, the layer stack with the layer name below it,
-// and LOCK, CAPS and SHIFT (inverted when Shift is locked) on the right.
-static void draw_left(status_t status) {
-    draw_big(big_L, 0, 0);
-    draw_logo(status.os == OS_LINUX ? tux_logo : windows_logo, 17, 0);
-    draw_layer_stack(status.layer);
+// Left screen:
+//   top centre      big L
+//   left, centred   layer stack, with the layer name and SHIFT under it
+//   above the logo  LOCK and CAPS
+//   bottom centre   OS logo
+#define LOGO_X ((SCREEN_W - 24) / 2)
+#define LOGO_Y (SCREEN_H - 24)
 
-    oled_set_cursor(0, 6);
-    oled_write(layer_name(status.layer), false);
+static void draw_left(status_t status) {
+    draw_text_centred("L", 0, 3);
+
+    draw_logo(status.os == OS_LINUX ? tux_logo : windows_logo, LOGO_X, LOGO_Y);
 
     if (status.layer_locked) {
-        oled_set_cursor(11, 3);
-        oled_write_P(PSTR("LOCK"), true);
+        draw_text_centred("LOCK", LOGO_Y - 18, 1);
     }
     if (status.caps_word) {
-        oled_set_cursor(11, 4);
-        oled_write_P(PSTR("CAPS"), false);
+        draw_text_centred("CAPS", LOGO_Y - 10, 1);
     }
+
+    draw_layer_stack(status.layer);
+    draw_text(layer_name(status.layer), STACK_X, STACK_Y + STACK_H + 4, 1);
     if (status.shift_locked) {
-        oled_set_cursor(11, 5);
-        oled_write_P(PSTR("SHIFT"), true);
+        draw_text("SHIFT", STACK_X, STACK_Y + STACK_H + 13, 1);
     }
 }
 
-// Right screen: a big R, then typing speed and counts beside it (DEV-35, DEV-103, DEV-104).
+// One statistic on the right screen: a small label and a large value, centred as a pair.
+#define METRIC_GAP 6
+
+static void draw_metric(const char *label, const char *value, uint8_t y) {
+    uint8_t label_w = text_width(label, 1);
+    uint8_t total   = label_w + METRIC_GAP + text_width(value, 2);
+    uint8_t x       = (SCREEN_W - total) / 2;
+    draw_text(label, x, y + 7, 1); // label sits on the same baseline as the value
+    draw_text(value, x + label_w + METRIC_GAP, y, 2);
+}
+
+// Right screen: a big R at the top, then the statistics at the bottom of the screen.
 static void draw_right(const stats_t *stats) {
-    char text[8];
+    char value[8];
 
-    draw_big(big_R, 0, 0);
+    draw_text_centred("R", 0, 3);
 
-    oled_set_cursor(4, 0);
-    oled_write_P(PSTR("CPM"), false);
-    oled_set_cursor(4, 1);
-    format_count((uint32_t)get_current_wpm() * 5, text); // WPM x 5 = characters per minute
-    oled_write(text, false);
-
-    oled_set_cursor(4, 2);
-    oled_write_P(PSTR("CHARS"), false);
-    oled_set_cursor(4, 3);
-    format_count(stats->chars, text);
-    oled_write(text, false);
-
-    oled_set_cursor(4, 4);
-    oled_write_P(PSTR("BKSP"), false);
-    oled_set_cursor(4, 5);
-    format_count(stats->backspaces, text);
-    oled_write(text, false);
+    format_count((uint32_t)get_current_wpm() * 5, value); // WPM x 5 = characters per minute
+    draw_metric("CPM", value, 22);
+    format_count(stats->chars, value);
+    draw_metric("CHARS", value, 36);
+    format_count(stats->backspaces, value);
+    draw_metric("BKSP", value, 50);
 }
 
 // The board calls this first; returning false skips its logo and status drawing.
