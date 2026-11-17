@@ -1,6 +1,7 @@
 // Copyright 2026 laureyn (@laureyn)
 // SPDX-License-Identifier: GPL-2.0-only
 
+#include "transactions.h"
 #include "sync.h"
 #include "oled.h"
 
