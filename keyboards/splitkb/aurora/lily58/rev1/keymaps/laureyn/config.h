@@ -9,8 +9,13 @@
 // Both halves share the activity time, so the screens and LEDs go off together (DEV-107, DEV-109).
 #define SPLIT_ACTIVITY_ENABLE
 
-// Custom sync: Caps Word state from the USB half to the other half (DEV-102).
-#define SPLIT_TRANSACTION_IDS_USER USER_SYNC_CAPS
+// Custom sync from the USB half to the other half: Caps Word, OLED choice and counts (DEV-102, DEV-104).
+#define SPLIT_TRANSACTION_IDS_USER USER_SYNC_STATE
+// Typing speed (characters per minute) is synced by QMK; the counts use the user sync above.
+#define SPLIT_WPM_ENABLE
+
+// Typing counts are saved in the user data block (stats_t, 8 bytes).
+#define EECONFIG_USER_DATA_SIZE 8
 
 // RGB: on at first boot with one effect; brightness stays at the board's cap (DEV-37).
 #define RGB_MATRIX_DEFAULT_ON true

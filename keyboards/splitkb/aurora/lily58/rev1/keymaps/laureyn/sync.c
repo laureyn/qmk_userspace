@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include "sync.h"
+#include "oled.h"
 
 #define SYNC_INTERVAL_MS 200
 
@@ -9,12 +10,16 @@ static bool     caps_word_from_master = false;
 static uint32_t sync_timer            = 0;
 
 // Runs on the half without the USB cable.
-static void caps_word_slave_handler(uint8_t in_size, const void *in_data, uint8_t out_size, void *out_data) {
-    caps_word_from_master = *(const bool *)in_data;
+static void user_sync_slave_handler(uint8_t in_size, const void *in_data, uint8_t out_size, void *out_data) {
+    const user_sync_t *in = in_data;
+    caps_word_from_master = in->caps_word;
+    stats_from_master(&in->stats);
+    oled_set_wanted(in->oled_enabled);
 }
 
 void keyboard_post_init_user(void) {
-    transaction_register_rpc(USER_SYNC_CAPS, caps_word_slave_handler);
+    stats_load();
+    transaction_register_rpc(USER_SYNC_STATE, user_sync_slave_handler);
 }
 
 bool caps_word_shown(void) {
@@ -27,6 +32,10 @@ void sync_task(void) {
         return;
     }
     sync_timer = timer_read32();
-    bool caps_word = is_caps_word_on();
-    transaction_rpc_send(USER_SYNC_CAPS, sizeof(caps_word), &caps_word);
+    user_sync_t state = {
+        .caps_word    = is_caps_word_on(),
+        .oled_enabled = oled_wanted(),
+        .stats        = *stats_local(),
+    };
+    transaction_rpc_send(USER_SYNC_STATE, sizeof(state), &state);
 }

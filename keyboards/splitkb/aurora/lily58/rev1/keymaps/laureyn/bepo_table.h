@@ -42,6 +42,8 @@ enum custom_keycodes {
     SCRL_DN,
     RGB_GLOW_TOG,
     RGB_KEYS_TOG,
+    OLED_TOG,
+    STATS_RESET,
 };
 
 typedef struct {

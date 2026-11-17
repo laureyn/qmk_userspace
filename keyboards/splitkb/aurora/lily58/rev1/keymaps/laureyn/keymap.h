@@ -14,6 +14,8 @@
 #include "encoders.h"
 #include "rgb.h"
 #include "sync.h"
+#include "stats.h"
+#include "oled.h"
 
 enum layers {
     BASE,

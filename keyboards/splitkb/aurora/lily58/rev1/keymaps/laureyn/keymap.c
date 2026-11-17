@@ -7,6 +7,12 @@
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     layer_timeout_key(record);
+    if (!stats_process_record(keycode, record)) {
+        return false;
+    }
+    if (!oled_process_record(keycode, record)) {
+        return false;
+    }
     if (!encoders_process_record(keycode, record)) {
         return false;
     }
@@ -41,6 +47,7 @@ void housekeeping_task_user(void) {
     caps_lock_task();
     layer_timeout_task();
     settings_reset_task();
+    stats_task();
     sync_task();
 }
 
@@ -73,8 +80,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         BE_0, BP_DOT, TT(SYM), _______, _______, TT(NUM), _______, _______),
 
     [MEDIA] = LAYOUT(
-        XXXXXXX, SETTINGS_RESET, XXXXXXX, RGB_GLOW_TOG, RGB_KEYS_TOG, XXXXXXX, OSKEY_AUTO, OSKEY_WINDOWS, OSKEY_LINUX, XXXXXXX, XXXXXXX, XXXXXXX,
-        _______, RM_TOGG, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_MSTP, XXXXXXX, XXXXXXX, XXXXXXX,
+        XXXXXXX, SETTINGS_RESET, STATS_RESET, XXXXXXX, XXXXXXX, XXXXXXX, OSKEY_AUTO, OSKEY_WINDOWS, OSKEY_LINUX, XXXXXXX, XXXXXXX, XXXXXXX,
+        _______, RM_TOGG, RGB_GLOW_TOG, RGB_KEYS_TOG, OLED_TOG, XXXXXXX, XXXXXXX, XXXXXXX, KC_MSTP, XXXXXXX, XXXXXXX, XXXXXXX,
         _______, RM_HUEU, RM_SATU, RM_VALU, RM_SPDU, RM_NEXT, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX,
         _______, RM_HUED, RM_SATD, RM_VALD, RM_SPDD, RM_PREV, _______, RIGHT_PUSH, XXXXXXX, KC_SLEP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         XXXXXXX, XXXXXXX, TT(SYM), XXXXXXX, XXXXXXX, TT(NUM), XXXXXXX, XXXXXXX),
