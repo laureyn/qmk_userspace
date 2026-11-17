@@ -14,8 +14,8 @@
 // Typing speed (characters per minute) is synced by QMK; the counts use the user sync above.
 #define SPLIT_WPM_ENABLE
 
-// Typing counts are saved in the user data block (stats_t, 8 bytes).
-#define EECONFIG_USER_DATA_SIZE 8
+// User data block: OS override at byte 0 (host_os.c), typing counts at byte 4 (stats.c, 8 bytes).
+#define EECONFIG_USER_DATA_SIZE 12
 
 // RGB: on at first boot with one effect; brightness stays at the board's cap (DEV-37).
 #define RGB_MATRIX_DEFAULT_ON true

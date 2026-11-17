@@ -27,8 +27,11 @@ static bool is_typed_key(uint16_t keycode) {
     return (base >= KC_A && base <= KC_0) || (base >= KC_MINS && base <= KC_SLSH) || base == KC_SPC || base == KC_ENT;
 }
 
+// Position of the counts in the user data block (the OS override is at 0).
+#define STATS_OFFSET 4
+
 static void save_now(void) {
-    eeconfig_update_user_datablock(&local, 0, sizeof(local));
+    eeconfig_update_user_datablock(&local, STATS_OFFSET, sizeof(local));
     unsaved    = false;
     save_timer = timer_read32();
 }
@@ -56,7 +59,7 @@ bool stats_process_record(uint16_t keycode, keyrecord_t *record) {
 
 void stats_load(void) {
     if (eeconfig_is_user_datablock_valid()) {
-        eeconfig_read_user_datablock(&local, 0, sizeof(local));
+        eeconfig_read_user_datablock(&local, STATS_OFFSET, sizeof(local));
     }
 }
 

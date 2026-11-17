@@ -3,15 +3,21 @@
 
 #include "host_os.h"
 
-// The override is the whole 32-bit user setting. Anything unknown (e.g. after a
-// settings reset) counts as auto.
+// The override is one byte at the start of the user data block (see config.h).
+// Anything unknown (e.g. after a settings reset) counts as auto.
+#define OS_MODE_OFFSET 0
+
 os_mode_t os_mode_get(void) {
-    uint32_t saved = eeconfig_read_user();
+    uint8_t saved = OS_MODE_AUTO;
+    if (eeconfig_is_user_datablock_valid()) {
+        eeconfig_read_user_datablock(&saved, OS_MODE_OFFSET, sizeof(saved));
+    }
     return saved <= OS_MODE_LINUX ? (os_mode_t)saved : OS_MODE_AUTO;
 }
 
 void os_mode_set(os_mode_t mode) {
-    eeconfig_update_user(mode);
+    uint8_t value = (uint8_t)mode;
+    eeconfig_update_user_datablock(&value, OS_MODE_OFFSET, sizeof(value));
 }
 
 // Only Windows and Linux are supported (D-03, D-16). The override wins; without
