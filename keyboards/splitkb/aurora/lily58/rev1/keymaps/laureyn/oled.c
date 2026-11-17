@@ -208,17 +208,17 @@ static void draw_left(status_t status) {
     draw_text_centred("L", 0, 3);
 
     if (status.caps_word) {
-        draw_text_centred("CAPS", 21, 2);
+        draw_text_centred("CAPS", 22, 1);
     }
     if (status.shift_locked) {
-        draw_text_centred("SHIFT", 36, 2);
+        draw_text_centred("SHIFT", 31, 1);
     }
 
     draw_layer_stack(status.layer);
     draw_text_centred(layer_name(status.layer), NAME_Y, 1);
 
     if (status.layer_locked) {
-        draw_text_centred("LOCK", LOGO_Y - 16, 2);
+        draw_text_centred("LOCK", LOGO_Y - 10, 1);
     }
 
     draw_logo(status.os == OS_LINUX ? tux_logo : windows_logo, LOGO_X, LOGO_Y);
