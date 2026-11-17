@@ -4,6 +4,7 @@ SRC += bepo_exception.c
 SRC += host_os.c
 SRC += os_shortcuts.c
 SRC += host_locks.c
+SRC += layers.c
 SRC += shift_key.c
 SRC += caps_word.c
 OS_DETECTION_ENABLE = yes

@@ -8,6 +8,8 @@
 #include "bepo_exception.h"
 #include "os_shortcuts.h"
 #include "shift_key.h"
+#include "host_locks.h"
+#include "layers.h"
 
 enum layers {
     BASE,
