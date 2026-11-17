@@ -11,3 +11,6 @@ enum tap_dance_keys {
 
 void shift_key_finished(tap_dance_state_t *state, void *user_data);
 void shift_key_reset(tap_dance_state_t *state, void *user_data);
+
+// True while the Shift lock (double tap) is on.
+bool shift_key_locked(void);

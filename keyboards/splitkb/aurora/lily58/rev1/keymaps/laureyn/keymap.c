@@ -7,6 +7,7 @@
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     layer_timeout_key(record);
+    layer_track_keys(keycode, record);
     if (!stats_process_record(keycode, record)) {
         return false;
     }

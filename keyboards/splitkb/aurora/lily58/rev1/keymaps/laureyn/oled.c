@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include "oled.h"
+#include "keymap.h"
 #include "bepo_table.h"
 #include "stats.h"
 #include "sync.h"
@@ -69,13 +70,32 @@ static void format_count(uint32_t n, char *out) {
     *p = '\0';
 }
 
-// Left screen: name, and CAPS under it while Caps Word is on (DEV-101).
+static const char *layer_name(uint8_t layer) {
+    switch (layer) {
+        case SYM:
+            return "SYM";
+        case NUM:
+            return "NUM";
+        case MEDIA:
+            return "MEDIA";
+        default:
+            return "BASE";
+    }
+}
+
+// Left screen: layer, LOCK when the layer is locked, CAPS, SHIFT when Shift is locked,
+// and the OS in use (DEV-101, DEV-34).
 // Right screen: typing speed and counts (DEV-35, DEV-103, DEV-104).
 // The board calls this first; returning false skips its logo and status drawing.
 bool oled_task_user(void) {
     if (is_keyboard_left()) {
+        status_t status = status_shown();
         oled_write_ln_P(PSTR("LEFT"), false);
-        oled_write_ln_P(caps_word_shown() ? PSTR("CAPS") : PSTR("    "), false);
+        oled_write_ln(layer_name(status.layer), false);
+        oled_write_ln_P(status.layer_locked ? PSTR("LOCK") : PSTR("    "), status.layer_locked);
+        oled_write_ln_P(status.caps_word ? PSTR("CAPS") : PSTR("    "), false);
+        oled_write_ln_P(status.shift_locked ? PSTR("SHIFT") : PSTR("     "), status.shift_locked);
+        oled_write_ln_P(status.os == OS_LINUX ? PSTR("LINUX") : PSTR("WIN"), false);
     } else {
         const stats_t *stats = stats_shown();
         char           text[8];

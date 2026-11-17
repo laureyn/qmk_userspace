@@ -33,3 +33,7 @@ void shift_key_reset(tap_dance_state_t *state, void *user_data) {
         unregister_mods(MOD_BIT(KC_LSFT));
     }
 }
+
+bool shift_key_locked(void) {
+    return shift_locked;
+}

@@ -9,6 +9,30 @@
 
 static uint8_t  keys_held     = 0;
 static uint32_t last_key_time = 0;
+static bool     sym_held      = false;
+static bool     num_held      = false;
+
+void layer_track_keys(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == TT(SYM)) {
+        sym_held = record->event.pressed;
+    } else if (keycode == TT(NUM)) {
+        num_held = record->event.pressed;
+    }
+}
+
+// MEDIA is locked only when both SYM and NUM are locked.
+bool layer_top_locked(void) {
+    switch (get_highest_layer(layer_state)) {
+        case SYM:
+            return !sym_held;
+        case NUM:
+            return !num_held;
+        case MEDIA:
+            return !sym_held && !num_held;
+        default:
+            return false;
+    }
+}
 
 void layer_timeout_key(keyrecord_t *record) {
     if (record->event.pressed) {
