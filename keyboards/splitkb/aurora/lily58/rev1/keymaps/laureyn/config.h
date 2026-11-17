@@ -27,3 +27,7 @@
 
 // The screens stay on long enough for the 5-minute idle animation (DEV-100).
 #define OLED_TIMEOUT 1800000
+
+// The panels are 128 x 64. Without this QMK assumes 128 x 32, and the rotated screen is then
+// only 32 pixels wide, so the drawing is cut off.
+#define OLED_DISPLAY_128X64
