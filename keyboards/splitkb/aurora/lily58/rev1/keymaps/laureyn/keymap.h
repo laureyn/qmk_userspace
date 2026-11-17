@@ -6,6 +6,7 @@
 #include "bepo_table.h"
 #include "bepo_dead.h"
 #include "bepo_exception.h"
+#include "os_shortcuts.h"
 
 enum layers {
     BASE,

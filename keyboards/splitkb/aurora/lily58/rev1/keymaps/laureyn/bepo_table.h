@@ -33,6 +33,7 @@ enum custom_keycodes {
     BP_OE,
     BP_CCED,
     BP_ELLIPSIS,
+    OS_REDO,
 };
 
 typedef struct {
