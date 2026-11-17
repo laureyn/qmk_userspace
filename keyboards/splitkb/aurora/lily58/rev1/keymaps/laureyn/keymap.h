@@ -7,6 +7,7 @@
 #include "bepo_dead.h"
 #include "bepo_exception.h"
 #include "os_shortcuts.h"
+#include "shift_key.h"
 
 enum layers {
     BASE,
