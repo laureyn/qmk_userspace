@@ -101,3 +101,8 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [NUM]   = {ENCODER_CCW_CW(KC_VOLD, KC_VOLU), ENCODER_CCW_CW(SCRL_DN, SCRL_UP)},
     [MEDIA] = {ENCODER_CCW_CW(KC_BRID, KC_BRIU), ENCODER_CCW_CW(RM_VALD, RM_VALU)},
 };
+
+// Runs after every key event: ends the one-shot Shift after the key it was used for.
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    shift_key_post_record(keycode, record);
+}

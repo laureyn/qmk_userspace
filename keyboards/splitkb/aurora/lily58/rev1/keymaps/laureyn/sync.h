@@ -10,7 +10,7 @@ typedef struct {
     uint8_t layer;        // top layer (BASE, SYM, NUM, MEDIA)
     bool    layer_locked; // top layer is on without its key held
     bool    shift_locked;
-    bool    caps_word;
+    bool    shift_once;
     uint8_t os; // os_variant_t: OS_WINDOWS or OS_LINUX
     bool    oled_enabled;
 } status_t;

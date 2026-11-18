@@ -18,7 +18,7 @@ static status_t status_local(void) {
         .layer        = get_highest_layer(layer_state),
         .layer_locked = layer_top_locked(),
         .shift_locked = shift_key_locked(),
-        .caps_word    = is_caps_word_on(),
+        .shift_once   = shift_key_once(),
         .os           = current_os(),
         .oled_enabled = oled_wanted(),
     };

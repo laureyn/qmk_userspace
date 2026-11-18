@@ -208,10 +208,7 @@ static void draw_layer_stack(uint8_t current) {
 static void draw_left(status_t status) {
     draw_text_centred("L", 0, 3);
 
-    if (status.caps_word) {
-        draw_text_centred("CAPS", 22, 1);
-    }
-    if (status.shift_locked) {
+    if (status.shift_locked || status.shift_once) {
         draw_text_centred("SHIFT", 31, 1);
     }
 

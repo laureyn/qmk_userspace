@@ -3,13 +3,13 @@
 
 #pragma once
 
-// TT keys: hold = layer while held, one tap = layer locked, tap again = unlocked (D-23).
-#define TAPPING_TOGGLE 1
+// TT keys: hold = layer while held, double tap = layer locked, double tap again = unlocked (D-23).
+#define TAPPING_TOGGLE 2
 
 // Both halves share the activity time, so the screens and LEDs go off together (DEV-107, DEV-109).
 #define SPLIT_ACTIVITY_ENABLE
 
-// Custom sync from the USB half to the other half: Caps Word, OLED choice and counts (DEV-102, DEV-104).
+// Custom sync from the USB half to the other half: Shift state, OLED choice and counts (DEV-102, DEV-104).
 #define SPLIT_TRANSACTION_IDS_USER USER_SYNC_STATE
 // Typing speed (characters per minute) is synced by QMK; the counts use the user sync above.
 #define SPLIT_WPM_ENABLE
